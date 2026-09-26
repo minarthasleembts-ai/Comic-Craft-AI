@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ComicCraft - AI Comic Creator</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🎨 ComicCraft</h1>
+
+        <p>Create your own AI-powered comic story.</p>
+
+        <form action="/generate" method="post">
+
+            <label>Story Prompt</label>
+            <textarea
+                name="prompt"
+                placeholder="Enter your story idea..."
+                required
+            ></textarea>
+
+
+            <label>Main Character</label>
+            <input
+                type="text"
+                name="character"
+                placeholder="Example: Young explorer"
+                required
+            >
+
+
+            <label>Setting</label>
+            <input
+                type="text"
+                name="setting"
+                placeholder="Example: Mysterious forest"
+                required
+            >
+
+
+            <label>Tone</label>
+
+            <select name="tone">
+
+                <option value="Adventure">Adventure</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+
+            </select>
+
+
+            <label>Art Style</label>
+
+            <select name="art_style">
+
+                <option value="Comic Book">
+                    Comic Book
+                </option>
+
+                <option value="Anime">
+                    Anime
+                </option>
+
+                <option value="Cartoon">
+                    Cartoon
+                </option>
+
+                <option value="Manga">
+                    Manga
+                </option>
+
+            </select>
+
+
+            <button type="submit">
+                Generate Comic
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

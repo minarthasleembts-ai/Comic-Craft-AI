@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Comic Preview</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/style.css"
+    >
+
+    <style>
+
+        .preview-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .preview-title {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .panel h2 {
+            margin-bottom: 15px;
+        }
+
+        .panel img {
+            width: 100%;
+            max-width: 800px;
+            display: block;
+            margin: 20px auto;
+            border-radius: 12px;
+        }
+
+        .story {
+            background: #f7f3ff;
+            padding: 18px;
+            border-radius: 12px;
+            line-height: 1.6;
+        }
+
+        .export-button {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            background: #713be1;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .export-button:hover {
+            background: #5f2fc7;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="preview-container">
+
+    <div class="preview-title">
+
+        <h1>🎨 Your Comic</h1>
+
+        <p>
+            Your AI-generated comic story
+            and illustrations
+        </p>
+
+    </div>
+
+
+    {% for panel in outline %}
+
+    <div class="panel">
+
+        <h2>
+            Panel {{ panel.panel }}:
+            {{ panel.title }}
+        </h2>
+
+
+        {% if image_paths[loop.index0] %}
+
+        <img
+            src="/{{ image_paths[loop.index0] }}"
+            alt="Comic Panel"
+        >
+
+        {% endif %}
+
+
+        {% if story[loop.index0] %}
+
+        <div class="story">
+
+            <p>
+                <strong>📖 Narration:</strong>
+                {{ story[loop.index0].narration }}
+            </p>
+
+
+            {% if story[loop.index0].dialogue %}
+
+            <p>
+                <strong>💬 Dialogue:</strong>
+                {{ story[loop.index0].dialogue }}
+            </p>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    {% endfor %}
+
+
+    <form
+        action="/export"
+        method="post"
+    >
+
+        {% for panel in outline %}
+
+        <input
+            type="hidden"
+            name="image_paths"
+            value="{{ image_paths[loop.index0] }}"
+        >
+
+        <input
+            type="hidden"
+            name="titles"
+            value="{{ panel.title }}"
+        >
+
+        <input
+            type="hidden"
+            name="narrations"
+            value="{{ story[loop.index0].narration }}"
+        >
+
+        <input
+            type="hidden"
+            name="dialogues"
+            value="{{ story[loop.index0].dialogue }}"
+        >
+
+        {% endfor %}
+
+
+        <button
+            type="submit"
+            class="export-button"
+        >
+            📄 Download Comic PDF
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+
+</html>

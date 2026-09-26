@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Comic Exported</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/style.css"
+    >
+
+    <style>
+
+        .feedback-container {
+            max-width: 650px;
+            margin: 60px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .feedback-container h1 {
+            margin-bottom: 10px;
+            color: #29213e;
+        }
+
+        .feedback-container p {
+            color: #6f687c;
+        }
+
+        .download-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 13px 25px;
+            border-radius: 12px;
+            background: #713be1;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .feedback-box {
+            width: 100%;
+            min-height: 150px;
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid #ded8ea;
+            border-radius: 12px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .feedback-box:focus {
+            border-color: #7746e8;
+            box-shadow: 0 0 0 4px rgba(119,70,232,0.10);
+        }
+
+        .feedback-button {
+            margin-top: 18px;
+            padding: 13px 25px;
+            border: none;
+            border-radius: 12px;
+            background: #713be1;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .feedback-button:hover {
+            background: #5f2fc7;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="feedback-container">
+
+        <h1>🎉 Your Comic is Ready!</h1>
+
+        <p>
+            Your comic PDF has been created successfully.
+        </p>
+
+        <a
+            href="/{{ pdf_path }}"
+            class="download-button"
+            download
+        >
+            📄 Download Comic PDF
+        </a>
+
+
+        <h2 style="margin-top: 45px;">
+            💬 Suggestions / Feedback
+        </h2>
+
+        <p>
+            Tell us what you think about ComicCraft.
+        </p>
+
+
+        <form
+            action="/feedback"
+            method="post"
+        >
+
+            <textarea
+                class="feedback-box"
+                name="feedback"
+                placeholder="Write your comments or suggestions here..."
+                required
+            ></textarea>
+
+
+            <br>
+
+
+            <button
+                type="submit"
+                class="feedback-button"
+            >
+                💜 Submit Feedback
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

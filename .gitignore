@@ -1,0 +1,6 @@
+env/
+.env
+__pycache__/
+*.pyc
+static/panels/*.png
+static/exports/*.pdf
