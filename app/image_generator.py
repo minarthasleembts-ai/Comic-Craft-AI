@@ -1,35 +1,31 @@
 from pathlib import Path
-
-from huggingface_hub import InferenceClient
+import requests
 
 from .config import get_settings
 
-
 settings = get_settings()
-
 
 PANELS_DIR = Path("static/panels")
 PANELS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-client = InferenceClient(
-    api_key=settings.HF_API_KEY,
-    provider="auto"
-)
-
-
-def generate_image(
-    prompt,
-    filename="comic_panel.png"
-):
-
+def generate_image(prompt, filename="comic_panel.png"):
     file_path = PANELS_DIR / filename
 
-    image = client.text_to_image(
-        prompt=prompt,
-        model="black-forest-labs/FLUX.1-schnell"
+    url = "https://gen.pollinations.ai/image/" + requests.utils.quote(prompt)
+
+    response = requests.get(
+        url,
+        params={"model": "flux"},
+        headers={
+            "Authorization": f"Bearer {settings.POLLINATIONS_API_KEY}"
+        },
+        timeout=120
     )
 
-    image.save(file_path)
+    response.raise_for_status()
+
+    with open(file_path, "wb") as file:
+        file.write(response.content)
 
     return str(file_path)
