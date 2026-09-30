@@ -24,7 +24,7 @@ def generate_image(prompt, filename="comic_panel.png"):
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
-        "Ocp-Apim-Subscription-Key": settings.PIXAZO_API_KEY
+       "Ocp-Apim-Subscription-Key": settings.PIXAZO_API_KEY.strip()
     }
 
     data = {
