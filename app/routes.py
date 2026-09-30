@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -45,13 +47,14 @@ async def generate_comic(
 
     story = generate_story(outline)
 
-    image_paths = []
+    async def generate_panel(panel):
 
-    for panel in outline:
+        panel_number = panel.get("panel", 1)
 
-        filename = f"panel_{panel.get('panel', len(image_paths) + 1)}.png"
+        filename = f"panel_{panel_number}.png"
 
-        image_path = generate_image(
+        image_path = await asyncio.to_thread(
+            generate_image,
             panel.get(
                 "image_prompt",
                 panel.get("scene_description", "")
@@ -59,7 +62,14 @@ async def generate_comic(
             filename
         )
 
-        image_paths.append(image_path)
+        return image_path
+
+    image_paths = await asyncio.gather(
+        *[
+            generate_panel(panel)
+            for panel in outline
+        ]
+    )
 
     return templates.TemplateResponse(
         request=request,
@@ -95,6 +105,7 @@ async def export_comic(
             "pdf_path": pdf_path
         }
     )
+
 
 @router.post("/feedback", response_class=HTMLResponse)
 async def submit_feedback(
