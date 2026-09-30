@@ -1,4 +1,5 @@
 from pathlib import Path
+import time
 
 from huggingface_hub import InferenceClient
 
@@ -7,10 +8,16 @@ from .config import get_settings
 
 settings = get_settings()
 
+
 PANELS_DIR = Path("static/panels")
-PANELS_DIR.mkdir(parents=True, exist_ok=True)
+PANELS_DIR.mkdir(
+    parents=True,
+    exist_ok=True
+)
+
 
 MODEL = "black-forest-labs/FLUX.1-schnell"
+
 
 client = InferenceClient(
     api_key=settings.HF_API_KEY
@@ -28,28 +35,48 @@ def generate_image(
         f"Generating Hugging Face image for: {prompt}"
     )
 
-    try:
+    for attempt in range(3):
 
-        image = client.text_to_image(
-            prompt=prompt,
-            model=MODEL,
-            width=512,
-            height=512,
-            num_inference_steps=4
-        )
+        try:
 
-        image.save(file_path)
+            print(
+                f"Image generation attempt "
+                f"{attempt + 1}/3"
+            )
 
-        print(
-            f"Image generated successfully: {file_path}"
-        )
+            image = client.text_to_image(
+                prompt=prompt,
+                model=MODEL,
+                width=512,
+                height=512
+            )
 
-        return str(file_path)
+            image.save(file_path)
 
-    except Exception as error:
+            print(
+                f"Image generated successfully: "
+                f"{file_path}"
+            )
 
-        print(
-            f"Hugging Face image generation failed: {error}"
-        )
+            return str(file_path)
 
-        return None
+        except Exception as error:
+
+            print(
+                f"Hugging Face image generation failed "
+                f"on attempt {attempt + 1}: {error}"
+            )
+
+            if attempt < 2:
+
+                print(
+                    "Waiting before retry..."
+                )
+
+                time.sleep(5)
+
+    print(
+        f"Failed to generate image: {filename}"
+    )
+
+    return None
