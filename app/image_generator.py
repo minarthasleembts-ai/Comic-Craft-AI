@@ -43,7 +43,7 @@ def generate_image(prompt, filename="comic_panel.png"):
             GENERATE_URL,
             json=data,
             headers=headers,
-            timeout=120
+            timeout=300
         )
 
         print("Pixazo response:", response.text)
