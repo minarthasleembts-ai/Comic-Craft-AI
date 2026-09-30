@@ -1,5 +1,3 @@
-import asyncio
-
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -9,17 +7,30 @@ from datetime import datetime
 
 from .gemini_flash import generate_outline
 from .gemini_pro import generate_story
-from .image_generator import generate_image
+from .image_generator import generate_all_images
 from .exporters import save_pdf
 
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory="templates")
+
+templates = Jinja2Templates(
+    directory="templates"
+)
 
 
-@router.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+# ==========================================
+# HOME PAGE
+# ==========================================
+
+@router.get(
+    "/",
+    response_class=HTMLResponse
+)
+async def home(
+    request: Request
+):
+
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -27,17 +38,46 @@ async def home(request: Request):
     )
 
 
-@router.post("/generate", response_class=HTMLResponse)
+# ==========================================
+# GENERATE COMIC
+# ==========================================
+
+@router.post(
+    "/generate",
+    response_class=HTMLResponse
+)
 async def generate_comic(
     request: Request,
+
     prompt: str = Form(...),
+
     character: str = Form(...),
+
     setting: str = Form(...),
+
     tone: str = Form(...),
+
     art_style: str = Form(...)
 ):
 
-    # Generate the 5-panel comic outline
+    print("\n================================")
+    print("STARTING COMIC GENERATION")
+    print("================================")
+
+    print(f"Prompt: {prompt}")
+    print(f"Character: {character}")
+    print(f"Setting: {setting}")
+    print(f"Tone: {tone}")
+    print(f"Art Style: {art_style}")
+
+
+    # ======================================
+    # STEP 1
+    # Generate 5-panel outline
+    # ======================================
+
+    print("\nGenerating comic outline...")
+
     outline = generate_outline(
         prompt,
         character,
@@ -46,101 +86,128 @@ async def generate_comic(
         art_style
     )
 
-    # Generate story content
-    story = generate_story(outline)
 
-    # Store generated image paths
-    image_paths = []
+    print(
+        f"Outline generated: "
+        f"{len(outline)} panels"
+    )
 
-    # Generate each panel one by one
-    for panel in outline:
 
-        panel_number = panel.get("panel", 1)
+    # ======================================
+    # STEP 2
+    # Generate story
+    # ======================================
 
-        filename = f"panel_{panel_number}.png"
+    print("\nGenerating story content...")
 
-        image_path = None
+    story = generate_story(
+        outline
+    )
 
-        # Try each image up to 3 times
-        for attempt in range(3):
 
-            print(
-                f"Generating Panel {panel_number} "
-                f"(Attempt {attempt + 1}/3)"
-            )
+    print(
+        f"Story generated: "
+        f"{len(story)} panels"
+    )
 
-            image_path = await asyncio.to_thread(
-                generate_image,
-                panel.get(
-                    "image_prompt",
-                    panel.get(
-                        "scene_description",
-                        ""
-                    )
-                ),
-                filename
-            )
 
-            # Stop retrying if successful
-            if image_path:
+    # ======================================
+    # STEP 3
+    # Generate ALL 5 images
+    # using ONE image-generation request
+    # ======================================
 
-                print(
-                    f"Panel {panel_number} generated successfully."
-                )
+    print("\n================================")
+    print("GENERATING 5-PANEL COMIC IMAGE")
+    print("ONE API REQUEST")
+    print("================================")
 
-                break
 
-            print(
-                f"Panel {panel_number} failed."
-            )
+    image_paths = generate_all_images(
+        outline
+    )
 
-            if attempt < 2:
 
-                print(
-                    f"Retrying Panel {panel_number}..."
-                )
+    print("\n================================")
+    print("ALL 5 PANEL IMAGES CREATED")
+    print("================================")
 
-        # Store image path
-        image_paths.append(image_path)
 
+    # ======================================
+    # STEP 4
     # Show comic preview
+    # ======================================
+
     return templates.TemplateResponse(
         request=request,
         name="comic_preview.html",
         context={
             "outline": outline,
+
             "story": story,
-            "image_paths": image_paths
+
+            "image_paths": image_paths,
+
+            "art_style": art_style
         }
     )
 
 
-@router.post("/export")
+# ==========================================
+# EXPORT COMIC AS PDF
+# ==========================================
+
+@router.post(
+    "/export",
+    response_class=HTMLResponse
+)
 async def export_comic(
     request: Request,
+
     image_paths: list[str] = Form(...),
+
     titles: list[str] = Form([]),
+
     narrations: list[str] = Form([]),
+
     dialogues: list[str] = Form([])
 ):
 
-    # Create PDF
+    print("\n================================")
+    print("EXPORTING COMIC PDF")
+    print("================================")
+
+
     pdf_path = save_pdf(
         image_paths=image_paths,
+
         titles=titles,
+
         narrations=narrations,
+
         dialogues=dialogues
     )
 
-    # Show export success page
+
+    print(
+        f"PDF created: {pdf_path}"
+    )
+
+
     return templates.TemplateResponse(
         request=request,
+
         name="export_success.html",
+
         context={
             "pdf_path": pdf_path
         }
     )
 
+
+# ==========================================
+# FEEDBACK
+# ==========================================
 
 @router.post(
     "/feedback",
@@ -148,14 +215,17 @@ async def export_comic(
 )
 async def submit_feedback(
     request: Request,
+
     feedback: str = Form(...)
 ):
 
     feedback = feedback.strip()
 
+
     feedback_file = Path(
         "feedback.txt"
     )
+
 
     with feedback_file.open(
         "a",
@@ -174,9 +244,16 @@ async def submit_feedback(
             "-" * 60 + "\n"
         )
 
-    # Show feedback success page
+
+    print(
+        "Feedback submitted successfully."
+    )
+
+
     return templates.TemplateResponse(
         request=request,
+
         name="feedback_success.html",
+
         context={}
     )
