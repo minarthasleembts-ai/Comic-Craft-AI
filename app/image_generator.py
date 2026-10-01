@@ -26,25 +26,17 @@ def generate_all_images(outline):
     )
 
     headers = {
-        "Authorization": (
-            f"Bearer {settings.CLOUDFLARE_API_TOKEN}"
-        ),
+        "Authorization": f"Bearer {settings.CLOUDFLARE_API_TOKEN}",
         "Content-Type": "application/json"
     }
 
     for index, panel in enumerate(outline):
 
-        panel_number = panel.get(
-            "panel",
-            index + 1
-        )
+        panel_number = panel.get("panel", index + 1)
 
         scene = panel.get(
             "image_prompt",
-            panel.get(
-                "scene_description",
-                ""
-            )
+            panel.get("scene_description", "")
         )
 
         prompt = f"""
@@ -86,9 +78,7 @@ captions,
 watermarks.
 """
 
-        print(
-            f"Generating Panel {panel_number}..."
-        )
+        print(f"Generating Panel {panel_number}...")
 
         data = {
             "prompt": prompt,
@@ -110,36 +100,21 @@ watermarks.
 
             image_base64 = result["result"]["image"]
 
-            image_data = base64.b64decode(
-                image_base64
-            )
+            image_data = base64.b64decode(image_base64)
 
-            filename = (
-                f"panel_{panel_number}.png"
-            )
+            filename = f"panel_{panel_number}.png"
 
-            panel_path = (
-                PANELS_DIR / filename
-            )
+            panel_path = PANELS_DIR / filename
 
-            panel_path.write_bytes(
-                image_data
-            )
+            panel_path.write_bytes(image_data)
 
-            image_paths.append(
-                str(panel_path)
-            )
+            image_paths.append(str(panel_path))
 
-            print(
-                f"Panel {panel_number} saved."
-            )
+            print(f"Panel {panel_number} saved.")
 
         except Exception as error:
 
-            print(
-                f"Panel {panel_number} failed: "
-                f"{error}"
-            )
+            print(f"Panel {panel_number} failed: {error}")
 
             image_paths.append(None)
 
